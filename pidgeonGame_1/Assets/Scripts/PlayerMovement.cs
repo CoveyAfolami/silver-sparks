@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -8,8 +9,8 @@ public class PlayerMovement : MonoBehaviour
     private bool isFacingRight = true;
 
     // Glide settings
-    private float maxGlideTime = 2f;  // Total allowed glide time
-    public float glideTimeLeft = 1f;
+    public float maxGlideTime = 2f;  // Total allowed glide time
+    private float glideTimeLeft = 2f;
     public float glideSpeed = -2f;
 
     [SerializeField] private Rigidbody2D rb;
@@ -66,6 +67,14 @@ public class PlayerMovement : MonoBehaviour
             Vector3 localScale = transform.localScale;
             localScale.x *= -1f;
             transform.localScale = localScale;
+        }
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.CompareTag("Bedrock"))
+        {
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         }
     }
 }
