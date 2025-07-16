@@ -9,8 +9,8 @@ public class PlayerMovement : MonoBehaviour
 
     // Glide settings
     private float maxGlideTime = 2f;  // Total allowed glide time
-    private float glideTimeLeft;
-    private float glideSpeed = -2f;
+    public float glideTimeLeft = 1f;
+    public float glideSpeed = -2f;
 
     [SerializeField] private Rigidbody2D rb;
     [SerializeField] private Transform groundCheck;
@@ -28,7 +28,7 @@ public class PlayerMovement : MonoBehaviour
         // Glide: if not grounded and holding E
         if (!IsGrounded())
         {
-            if (Input.GetKey(KeyCode.E) && glideTimeLeft > 0f)
+            if (Input.GetKey(KeyCode.E) && glideTimeLeft >= 0f)
             {
                 rb.linearVelocity = new Vector2(rb.linearVelocity.x, Mathf.Max(rb.linearVelocity.y, glideSpeed));
                 glideTimeLeft -= Time.deltaTime;
