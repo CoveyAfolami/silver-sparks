@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -7,39 +8,68 @@ public class PlayerMovement : MonoBehaviour
     private float speed = 8f;
     private float jumpingPower = 16f;
     private bool isFacingRight = true;
+    private bool isJumping;
 
+    // Coyote time & jump buffer
+    private float coyoteTime = 0.2f;
+    private float coyoteTimeCounter;
+    private float jumpBufferTime = 0.2f;
+    private float jumpBufferCounter;
+
+    // Glide settings
+    public float maxGlideTime = 2f;
+    private float glideTimeLeft;
+    public float glideSpeed = -2f;
+
+    // Pooping
     public GameObject poopProjectile;
     private bool canPoop = true;
     private bool hasPooped = false;
-
-    // Glide settings
-    public float maxGlideTime = 2f;  // Total allowed glide time
-    private float glideTimeLeft = 2f;
-    public float glideSpeed = -2f;
 
     [SerializeField] private Rigidbody2D rb;
     [SerializeField] private Transform groundCheck;
     [SerializeField] private LayerMask groundLayer;
 
+    void Start()
+    {
+        glideTimeLeft = maxGlideTime;
+    }
+
     void Update()
     {
         horizontal = Input.GetAxisRaw("Horizontal");
 
+        // Handle coyote time
+        if (IsGrounded())
+            coyoteTimeCounter = coyoteTime;
+        else
+            coyoteTimeCounter -= Time.deltaTime;
 
-        if (Input.GetButtonDown("Jump") && IsGrounded())
+        // Handle jump buffering
+        if (Input.GetButtonDown("Jump"))
+            jumpBufferCounter = jumpBufferTime;
+        else
+            jumpBufferCounter -= Time.deltaTime;
+
+        // Jump with coyote and buffer
+        if (coyoteTimeCounter > 0f && jumpBufferCounter > 0f && !isJumping)
         {
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpingPower);
+            jumpBufferCounter = 0f;
+            StartCoroutine(JumpCooldown());
         }
 
+        // Variable jump height
         if (Input.GetButtonUp("Jump") && rb.linearVelocity.y > 0f)
         {
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, rb.linearVelocity.y * 0.5f);
+            coyoteTimeCounter = 0f;
         }
 
-        // Glide: if not grounded and holding E
+        // Glide
         if (!IsGrounded())
         {
-            if (Input.GetKey(KeyCode.E) && glideTimeLeft >= 0f)
+            if (Input.GetKey(KeyCode.E) && glideTimeLeft > 0f)
             {
                 rb.linearVelocity = new Vector2(rb.linearVelocity.x, Mathf.Max(rb.linearVelocity.y, glideSpeed));
                 glideTimeLeft -= Time.deltaTime;
@@ -47,16 +77,20 @@ public class PlayerMovement : MonoBehaviour
         }
         else
         {
-            // Reset glide time when player lands
             glideTimeLeft = maxGlideTime;
         }
 
+        // Reset poop state
         if (IsGrounded())
         {
             hasPooped = false;
         }
 
-        Poop();
+        if (!IsGrounded() && canPoop && !hasPooped && Input.GetKeyDown(KeyCode.D))
+        {
+            Poop();
+        }
+        
         Flip();
     }
 
@@ -91,11 +125,16 @@ public class PlayerMovement : MonoBehaviour
 
     private void Poop()
     {
-        if (!IsGrounded() && (canPoop && !hasPooped) && Input.GetKeyDown(KeyCode.W))
-        {
+        
             Instantiate(poopProjectile, transform.position, Quaternion.identity);
             hasPooped = true;
-            
-        }
+        
+    }
+
+    private IEnumerator JumpCooldown()
+    {
+        isJumping = true;
+        yield return new WaitForSeconds(0.4f);
+        isJumping = false;
     }
 }
