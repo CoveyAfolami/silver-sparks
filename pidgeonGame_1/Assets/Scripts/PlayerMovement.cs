@@ -86,7 +86,7 @@ public class PlayerMovement : MonoBehaviour
             hasPooped = false;
         }
 
-        if (!IsGrounded() && canPoop && !hasPooped && Input.GetKeyDown(KeyCode.D))
+        if (!IsGrounded() && canPoop && !hasPooped && Input.GetKeyDown(KeyCode.S))
         {
             Poop();
         }
