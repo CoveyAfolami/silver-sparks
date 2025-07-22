@@ -33,7 +33,7 @@ public class HealthManager : MonoBehaviour
         healthBar?.SetCurrentHealth(currentHealth);
     }
 
-    private void Die()
+    public void Die()
     {
         if (deathEffect)
             Instantiate(deathEffect, transform.position, Quaternion.identity);

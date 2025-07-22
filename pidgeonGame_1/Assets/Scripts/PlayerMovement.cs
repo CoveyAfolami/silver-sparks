@@ -26,6 +26,9 @@ public class PlayerMovement : MonoBehaviour
     private bool canPoop = true;
     private bool hasPooped = false;
 
+    //Health
+    HealthManager healthManager;
+
     [SerializeField] private Rigidbody2D rb;
     [SerializeField] private Transform groundCheck;
     [SerializeField] private LayerMask groundLayer;
@@ -119,7 +122,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if (collision.CompareTag("Bedrock"))
         {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+            healthManager.Die();
         }
     }
 
