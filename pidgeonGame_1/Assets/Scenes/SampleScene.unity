@@ -620,9 +620,9 @@ GameObject:
   - component: {fileID: 680040862}
   - component: {fileID: 680040861}
   - component: {fileID: 680040860}
-  - component: {fileID: 680040859}
   - component: {fileID: 680040865}
   - component: {fileID: 680040864}
+  - component: {fileID: 680040866}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -630,26 +630,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &680040859
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 680040858}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3c2759134f32971409f2738a143d088a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  maxGlideTime: 2
-  glideSpeed: -2
-  poopProjectile: {fileID: 6147799936190948757, guid: 020d2e87259c0f4458d53f296bbf1cd8, type: 3}
-  rb: {fileID: 680040861}
-  groundCheck: {fileID: 1879314622}
-  groundLayer:
-    serializedVersion: 2
-    m_Bits: 64
 --- !u!61 &680040860
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -832,6 +812,38 @@ MonoBehaviour:
   cooldownTime: 0.5
   attackDamage: 25
   animator: {fileID: 0}
+--- !u!114 &680040866
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 680040858}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 31a9d0b2dedfca3498e3e7dbbb7a69df, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rb: {fileID: 680040861}
+  groundCheck: {fileID: 1879314622}
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  poopProjectile: {fileID: 6147799936190948757, guid: 020d2e87259c0f4458d53f296bbf1cd8, type: 3}
+  healthManager: {fileID: 680040864}
+  speed: 8
+  jumpingPower: 16
+  glideSpeed: -2
+  maxGlideTime: 2
+  coyoteTime: 0.2
+  jumpBufferTime: 0.2
+  horizontal: 0
+  glideTimeLeft: 0
+  coyoteTimeCounter: 0
+  jumpBufferCounter: 0
+  isFacingRight: 1
+  hasPooped: 0
+  canPoop: 1
 --- !u!1 &1028714072
 GameObject:
   m_ObjectHideFlags: 0
