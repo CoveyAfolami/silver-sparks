@@ -26,8 +26,8 @@ public class PlayerMovement : MonoBehaviour
     private bool canPoop = true;
     private bool hasPooped = false;
 
-    //Health
-    HealthManager healthManager;
+    // Health
+    private HealthManager healthManager;
 
     [SerializeField] private Rigidbody2D rb;
     [SerializeField] private Transform groundCheck;
@@ -36,6 +36,7 @@ public class PlayerMovement : MonoBehaviour
     void Start()
     {
         glideTimeLeft = maxGlideTime;
+        healthManager = GetComponent<HealthManager>();
     }
 
     void Update()
@@ -80,20 +81,15 @@ public class PlayerMovement : MonoBehaviour
         }
         else
         {
-            glideTimeLeft = maxGlideTime;
+            ResetGlide();
         }
 
-        // Reset poop state
-        if (IsGrounded())
-        {
-            hasPooped = false;
-        }
-
+        // Poop
         if (!IsGrounded() && canPoop && !hasPooped && Input.GetKeyDown(KeyCode.S))
         {
             Poop();
         }
-        
+
         Flip();
     }
 
@@ -122,16 +118,17 @@ public class PlayerMovement : MonoBehaviour
     {
         if (collision.CompareTag("Bedrock"))
         {
-            healthManager.Die();
+            healthManager?.Die();
         }
     }
 
     private void Poop()
     {
-        
+        if (poopProjectile != null)
+        {
             Instantiate(poopProjectile, transform.position, Quaternion.identity);
             hasPooped = true;
-        
+        }
     }
 
     private IEnumerator JumpCooldown()
@@ -139,5 +136,11 @@ public class PlayerMovement : MonoBehaviour
         isJumping = true;
         yield return new WaitForSeconds(0.4f);
         isJumping = false;
+    }
+
+    private void ResetGlide()
+    {
+        glideTimeLeft = maxGlideTime;
+        hasPooped = false;
     }
 }
