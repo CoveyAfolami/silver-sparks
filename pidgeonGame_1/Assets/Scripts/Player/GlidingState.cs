@@ -2,43 +2,29 @@ using UnityEngine;
 
 public class GlidingState : BasePlayerState
 {
-    public GlidingState(Player player, PlayerStateMachine stateMachine) : base(player, stateMachine) { }
+    public GlidingState(Player player, PlayerStateMachine stateMachine)
+        : base(player, stateMachine) { }
 
-    public override void Enter()
+    public override void HandleInput()
     {
-        // Start gliding
-        // player.animator.SetBool("isGliding", true);
-    }
-
-    public override void LogicUpdate()
-    {
-        if (player.IsGrounded())
-        {
-            player.glideTimeLeft = player.maxGlideTime;
-            player.hasPooped = false;
-            stateMachine.ChangeState(player.idleState);
-        }
-        else if (!Input.GetKey(KeyCode.E) || player.glideTimeLeft <= 0f)
-        {
-            stateMachine.ChangeState(player.fallingState);
-        }
-
-        player.glideTimeLeft -= Time.deltaTime;
-
-        if (Input.GetKeyDown(KeyCode.S) && player.canPoop && !player.hasPooped)
-        {
-            player.Poop();
-        }
+        if (Input.GetKeyDown(KeyCode.F))
+            stateMachine.ChangeState(player.meleeAttackState);
     }
 
     public override void PhysicsUpdate()
     {
-        float verticalVelocity = Mathf.Max(player.rb.linearVelocity.y, player.glideSpeed);
-        player.rb.linearVelocity = new Vector2(player.horizontal * player.speed, verticalVelocity);
-    }
+        player.rb.linearVelocity = new Vector2(
+            player.rb.linearVelocity.x,
+            Mathf.Max(player.rb.linearVelocity.y, player.glideSpeed)
+        );
+        player.glideTimeLeft -= Time.deltaTime;
 
-    public override void Exit()
-    {
-        // player.animator.SetBool("isGliding", false);
+        if (player.glideTimeLeft <= 0f || player.IsGrounded())
+        {
+            if (player.IsGrounded())
+                stateMachine.ChangeState(player.idleState);
+            else
+                stateMachine.ChangeState(player.fallingState);
+        }
     }
 }

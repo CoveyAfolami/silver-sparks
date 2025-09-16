@@ -1,40 +1,49 @@
-using Unity.IO.LowLevel.Unsafe;
 using UnityEngine;
 
 public class Player : MonoBehaviour
 {
+    [Header("Movement Settings")]
+    public float speed = 8f;
+    public float jumpingPower = 16f;
+
+    [Header("Glide Settings")]
+    public float maxGlideTime = 2f;
+    public float glideSpeed = -2f;
+
+    [Header("Combat Settings")]
+    public float attackDuration = 0.3f;
+    public GameObject meleeHitbox;
+
+    [Header("Crouch Settings")]
+    
+
     [Header("Components")]
     public Rigidbody2D rb;
     public Transform groundCheck;
     public LayerMask groundLayer;
-    public GameObject poopProjectile;
+    public Animator animator; // Optional if you have animations
     public HealthManager healthManager;
 
-    [Header("Movement Settings")]
-    public float speed = 8f;
-    public float jumpingPower = 16f;
-    public float glideSpeed = -2f;
-    public float maxGlideTime = 2f;
+    // --- FSM ---
+    public PlayerStateMachine stateMachine { get; private set; }
+    public IdleState idleState { get; private set; }
+    public RunningState runningState { get; private set; }
+    public JumpingState jumpingState { get; private set; }
+    public FallingState fallingState { get; private set; }
+    public GlidingState glidingState { get; private set; }
+    public MeleeAttackState meleeAttackState { get; private set; }
+    public CrouchingState crouchingState { get; private set; }
 
-    [Header("Jump Timers")]
-    public float coyoteTime = 0.2f;
-    public float jumpBufferTime = 0.2f;
-
+    // --- Runtime vars ---
     [HideInInspector] public float horizontal;
-    [HideInInspector] public float glideTimeLeft;
     [HideInInspector] public float coyoteTimeCounter;
     [HideInInspector] public float jumpBufferCounter;
-    [HideInInspector] public bool isFacingRight = true;
-    [HideInInspector] public bool hasPooped = false;
-    [HideInInspector] public bool canPoop = true;
+    [HideInInspector] public float glideTimeLeft;
+    [HideInInspector] public bool isAttacking;
+    [HideInInspector] public bool isGlideInputHeld;
 
-    public PlayerStateMachine stateMachine;
-
-    public IdleState idleState;
-    public RunningState runningState;
-    public JumpingState jumpingState;
-    public FallingState fallingState;
-    public GlidingState glidingState;
+    private float coyoteTime = 0.2f;
+    private float jumpBufferTime = 0.2f;
 
     private void Awake()
     {
@@ -45,6 +54,8 @@ public class Player : MonoBehaviour
         jumpingState = new JumpingState(this, stateMachine);
         fallingState = new FallingState(this, stateMachine);
         glidingState = new GlidingState(this, stateMachine);
+        meleeAttackState = new MeleeAttackState(this, stateMachine);
+        crouchingState = new CrouchingState(this, stateMachine);
     }
 
     private void Start()
@@ -55,12 +66,30 @@ public class Player : MonoBehaviour
 
     private void Update()
     {
+        // --- INPUT ---
         horizontal = Input.GetAxisRaw("Horizontal");
+        isGlideInputHeld = Input.GetKey(KeyCode.E);
 
-        HandleTimers();
-        stateMachine.CurrentState.HandleInput();
+        // Coyote time handling
+        if (IsGrounded())
+            coyoteTimeCounter = coyoteTime;
+        else
+            coyoteTimeCounter -= Time.deltaTime;
+
+        // Jump buffer handling
+        if (Input.GetButtonDown("Jump"))
+            jumpBufferCounter = jumpBufferTime;
+        else
+            jumpBufferCounter -= Time.deltaTime;
+
+        // Melee attack input
+        if (Input.GetKeyDown(KeyCode.F) && !isAttacking)
+        {
+            stateMachine.ChangeState(meleeAttackState);
+        }
+
+        // Update FSM logic
         stateMachine.CurrentState.LogicUpdate();
-        Flip();
     }
 
     private void FixedUpdate()
@@ -68,49 +97,13 @@ public class Player : MonoBehaviour
         stateMachine.CurrentState.PhysicsUpdate();
     }
 
-    private void HandleTimers()
-    {
-        if (IsGrounded())
-            coyoteTimeCounter = coyoteTime;
-        else
-            coyoteTimeCounter -= Time.deltaTime;
-
-        if (Input.GetButtonDown("Jump"))
-            jumpBufferCounter = jumpBufferTime;
-        else
-            jumpBufferCounter -= Time.deltaTime;
-    }
-
     public bool IsGrounded()
     {
         return Physics2D.OverlapCircle(groundCheck.position, 0.2f, groundLayer);
     }
 
-    public void Flip()
-    {
-        if ((isFacingRight && horizontal < 0f) || (!isFacingRight && horizontal > 0f))
-        {
-            isFacingRight = !isFacingRight;
-            Vector3 scale = transform.localScale;
-            scale.x *= -1;
-            transform.localScale = scale;
-        }
-    }
-
     public void Poop()
     {
-        if (poopProjectile != null)
-        {
-            Instantiate(poopProjectile, transform.position, Quaternion.identity);
-            hasPooped = true;
-        }
-    }
-
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        if (collision.CompareTag("Bedrock"))
-        {
-            healthManager?.Die();
-        }
+        // If you want to add pooping, just call Instantiate(poopProjectile, ...)
     }
 }

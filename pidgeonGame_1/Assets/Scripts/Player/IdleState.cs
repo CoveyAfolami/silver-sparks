@@ -2,26 +2,21 @@ using UnityEngine;
 
 public class IdleState : BasePlayerState
 {
-    public IdleState(Player player, PlayerStateMachine stateMachine) : base(player, stateMachine) { }
+    public IdleState(Player player, PlayerStateMachine stateMachine)
+        : base(player, stateMachine) { }
 
-    public override void LogicUpdate()
+    public override void HandleInput()
     {
-        if (!player.IsGrounded())
-        {
-            stateMachine.ChangeState(player.fallingState);
-        }
-        else if (Mathf.Abs(player.horizontal) > 0.1f)
-        {
+        if (Input.GetKeyDown(KeyCode.F))
+            stateMachine.ChangeState(player.meleeAttackState);
+
+        if (Mathf.Abs(player.horizontal) > 0.01f)
             stateMachine.ChangeState(player.runningState);
-        }
-        else if (player.jumpBufferCounter > 0f && player.coyoteTimeCounter > 0f)
-        {
-            stateMachine.ChangeState(player.jumpingState);
-        }
-    }
 
-    public override void PhysicsUpdate()
-    {
-        player.rb.linearVelocity = new Vector2(0f, player.rb.linearVelocity.y);
+        if (player.jumpBufferCounter > 0f && player.coyoteTimeCounter > 0f)
+            stateMachine.ChangeState(player.jumpingState);
+
+        if (Input.GetKeyDown(KeyCode.S))
+            stateMachine.ChangeState(player.crouchingState);
     }
 }
