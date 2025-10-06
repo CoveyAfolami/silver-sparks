@@ -8,6 +8,16 @@ public class CrouchingState : BasePlayerState
     public override void Enter()
     {
         base.Enter();
+        player.isCrouching = true;
     }
+
+    public override void LogicUpdate()
+    {
+        if (player.isCrouching)
+        {
+            player.boxCollider
+        }
+    }
+        
 
 }

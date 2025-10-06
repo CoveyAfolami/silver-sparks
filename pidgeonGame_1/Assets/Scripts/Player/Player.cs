@@ -19,6 +19,7 @@ public class Player : MonoBehaviour
 
     [Header("Components")]
     public Rigidbody2D rb;
+    public BoxCollider2D boxCollider;
     public Transform groundCheck;
     public LayerMask groundLayer;
     public Animator animator; // Optional if you have animations
@@ -41,6 +42,8 @@ public class Player : MonoBehaviour
     [HideInInspector] public float glideTimeLeft;
     [HideInInspector] public bool isAttacking;
     [HideInInspector] public bool isGlideInputHeld;
+    [HideInInspector] public bool isCrouching;
+
 
     private float coyoteTime = 0.2f;
     private float jumpBufferTime = 0.2f;
